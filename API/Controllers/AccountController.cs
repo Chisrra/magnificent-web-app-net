@@ -3,15 +3,19 @@ using System.Text;
 using API.Data;
 using API.DTOs;
 using API.Entities;
+using API.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace API.Controllers;
 
-public class AccountController(DataContext context) : BaseApiController
+public class AccountController(
+    DataContext context,
+    ITokenService tokenService
+    ) : BaseApiController
 {
     [HttpPost("register")]
-    public async Task<ActionResult<AppUser>> RegisterAsync([FromBody] RegisterRequest registerDto)
+    public async Task<ActionResult<UserResponse>> RegisterAsync([FromBody] RegisterRequest registerDto)
     {
         if (await UserExistsAsync(registerDto.UserName)) return BadRequest("Username is taken");
 
@@ -26,11 +30,15 @@ public class AccountController(DataContext context) : BaseApiController
         context.Users.Add(user);
         await context.SaveChangesAsync();
         
-        return user;
+        return new UserResponse
+        {
+            Username = user.UserName,
+            Token = tokenService.CreateToken(user)
+        };
     }
 
     [HttpPost("login")]
-    public async Task<ActionResult<AppUser>> LoginAsync([FromBody] LoginRequest loginDto) 
+    public async Task<ActionResult<UserResponse>> LoginAsync([FromBody] LoginRequest loginDto) 
     {
         var user = await context.Users.FirstOrDefaultAsync(user => user.UserName.ToLower() == loginDto.UserName.ToLower());
         if (user == null) return Unauthorized("Invalid login");
@@ -42,7 +50,11 @@ public class AccountController(DataContext context) : BaseApiController
             if (computeHash[i] != user.PasswordHash[i]) return Unauthorized("Invalid login");
         }
         
-        return user;
+        return new UserResponse
+        {
+            Username = user.UserName,
+            Token = tokenService.CreateToken(user)
+        };
     }
 
     private async Task<bool> UserExistsAsync(string username) {
