@@ -26,4 +26,9 @@ export class NavComponent {
       }
     });
   }
+
+  logout(): void {
+    this.loggedIn = false;
+    console.log('Logged out');
+  }
 }
