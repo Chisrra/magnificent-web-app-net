@@ -18,12 +18,13 @@
     }
 
     @if (loggedIn) {
-      <div class="dropdown">
-        <a class="dropdown-toggle text-light" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+      <div dropdown class="dropdown">
+        <a dropdownToggle class="dropdown-toggle text-light text-decoration-none" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
             Bienvenido Usuario
         </a>
-        <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+        <div *dropdownMenu class="dropdown-menu" aria-labelledby="dropdownMenuLink">
             <a class="dropdown-item" href="#">Perfil</a>
+            <div class="dropdown-divider"></div>
             <a class="dropdown-item" href="#" (click)="logout()">Logout</a>
         </div>
       </div>
